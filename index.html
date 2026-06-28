@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 週計畫靈感庫</title>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F3EC;
+    --card: #FFFFFF;
+    --text: #2C2C2A;
+    --text-muted: #6B6B68;
+    --border: #E5E0D8;
+    --purple-bg: #EEE9FB;
+    --purple: #6C5CE7;
+    --green-bg: #E2F5EC;
+    --green: #1A7A4A;
+    --pink-bg: #FDEAEA;
+    --pink: #C0392B;
+    --yellow-bg: #FEF9E7;
+    --yellow: #9A7D0A;
+    --badge-easy-bg: #D6EFD8; --badge-easy: #1E6B2E;
+    --badge-med-bg: #FEF3CD; --badge-med: #8A6500;
+    --badge-hard-bg: #FDDEDE; --badge-hard: #9B2020;
+    --accent: #5B4FCF;
+    --radius: 16px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* Header */
+  .header {
+    padding: 40px 24px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .header h1 span { color: var(--accent); }
+  .header p { margin-top: 6px; font-size: 14px; color: var(--text-muted); }
+
+  /* Stats */
+  .stats {
+    display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 16px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .stat-pill strong { color: var(--text); font-size: 15px; margin-right: 4px; }
+
+  /* Filters */
+  .filter-bar {
+    padding: 0 24px; max-width: 900px; margin: 0 auto 20px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 7px 16px; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--card);
+    color: var(--text-muted); font-size: 13px; cursor: pointer;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; font-weight: 500;
+  }
+
+  /* Grid */
+  .grid {
+    max-width: 900px; margin: 0 auto; padding: 0 24px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Card */
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    overflow: hidden; display: flex; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .card.done { opacity: 0.5; }
+  .card.done .card-title { text-decoration: line-through; }
+
+  .card-stripe { width: 5px; flex-shrink: 0; }
+  .stripe-work { background: var(--purple); }
+  .stripe-life { background: var(--green); }
+  .stripe-share { background: var(--pink); }
+  .stripe-mixed { background: linear-gradient(180deg, var(--purple), var(--pink)); }
+
+  .card-body { padding: 16px 16px 14px; flex: 1; }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .card-title { font-size: 15px; font-weight: 600; line-height: 1.4; }
+  .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px; padding: 2px 10px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--text-muted);
+    background: var(--bg);
+  }
+
+  .badge {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 999px; white-space: nowrap; flex-shrink: 0;
+  }
+  .badge-easy { background: var(--badge-easy-bg); color: var(--badge-easy); }
+  .badge-med  { background: var(--badge-med-bg);  color: var(--badge-med); }
+  .badge-hard { background: var(--badge-hard-bg); color: var(--badge-hard); }
+
+  .done-btn {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0; transition: all 0.15s;
+  }
+  .done-btn:hover { border-color: var(--green); background: var(--green-bg); }
+  .card.done .done-btn { background: var(--green-bg); border-color: var(--green); }
+
+  /* Empty */
+  .empty { text-align: center; padding: 48px; color: var(--text-muted); font-size: 14px; grid-column: 1/-1; }
+
+  /* FAB */
+  .fab {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    border: none; font-size: 28px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(91,79,207,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s; z-index: 100;
+  }
+  .fab:hover { transform: scale(1.08); }
+
+  /* AI Section */
+  .ai-section {
+    max-width: 900px; margin: 32px auto 0; padding: 0 24px;
+  }
+  .ai-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .ai-card h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .ai-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+  .ai-inputs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ai-inputs input, .ai-inputs select {
+    flex: 1; min-width: 180px; padding: 9px 14px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 14px; background: var(--bg); color: var(--text);
+    font-family: inherit; outline: none;
+  }
+  .ai-inputs input:focus, .ai-inputs select:focus { border-color: var(--accent); }
+  .ai-gen-btn {
+    width: 100%; padding: 11px; border-radius: 10px;
+    background: var(--accent); color: #fff; border: none;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .ai-gen-btn:hover { opacity: 0.88; }
+  .ai-gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ai-output {
+    margin-top: 16px; padding: 16px; border-radius: 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    font-size: 14px; line-height: 1.8; color: var(--text);
+    min-height: 60px; display: none; white-space: pre-wrap;
+  }
+  .ai-output.visible { display: block; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border-radius: 20px;
+    width: 100%; max-width: 480px; padding: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .modal label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 5px; margin-top: 14px; }
+  .modal input, .modal textarea, .modal select {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 14px; background: var(--bg); color: var(--text);
+    font-family: inherit; outline: none; resize: vertical;
+  }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--accent); }
+  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-cancel {
+    flex: 1; padding: 10px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: transparent;
+    font-size: 14px; cursor: pointer; font-family: inherit; color: var(--text-muted);
+  }
+  .btn-save {
+    flex: 2; padding: 10px; border-radius: 10px;
+    background: var(--accent); color: #fff; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+
+  /* Detail Modal */
+  .detail-emoji { font-size: 40px; margin-bottom: 12px; }
+  .detail-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .detail-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 18px; }
+  .detail-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .detail-actions { display: flex; gap: 10px; }
+  .btn-done-detail {
+    flex: 1; padding: 11px; border-radius: 10px;
+    background: var(--green-bg); color: var(--green);
+    border: 1.5px solid var(--green); font-size: 14px;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .btn-delete {
+    padding: 11px 16px; border-radius: 10px;
+    background: var(--pink-bg); color: var(--pink);
+    border: 1.5px solid var(--pink); font-size: 14px;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-close-detail {
+    flex: 1; padding: 11px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: transparent;
+    font-size: 14px; cursor: pointer; font-family: inherit; color: var(--text-muted);
+  }
+
+  .spinner { animation: spin 0.8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>💡 AI 週計畫<span>靈感庫</span></h1>
+      <p>每週一個 AI 專案，解決工作與生活的問題</p>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="filter-bar" id="filters">
+  <button class="filter-btn active" data-f="all">全部</button>
+  <button class="filter-btn" data-f="work">💼 工作</button>
+  <button class="filter-btn" data-f="life">🌿 生活</button>
+  <button class="filter-btn" data-f="share">🤝 分享朋友</button>
+  <button class="filter-btn" data-f="easy">🟢 輕鬆上手</button>
+  <button class="filter-btn" data-f="medium">🟡 中等</button>
+  <button class="filter-btn" data-f="hard">🔴 有挑戰</button>
+  <button class="filter-btn" data-f="done">✅ 已完成</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="ai-section">
+  <div class="ai-card">
+    <h2>✨ AI 幫我想更多點子</h2>
+    <p>告訴 AI 你的背景，讓它生成專屬靈感</p>
+    <div class="ai-inputs">
+      <input id="ai-bg" type="text" placeholder="你的背景，例如：保險業務、台灣" value="保險業、台灣">
+      <select id="ai-type">
+        <option value="工作效率">工作效率</option>
+        <option value="客戶服務">客戶服務</option>
+        <option value="生活應用">生活應用</option>
+        <option value="分享朋友">可分享朋友</option>
+        <option value="任何類型">任何類型</option>
+      </select>
+    </div>
+    <button class="ai-gen-btn" id="ai-btn" onclick="generateIdeas()">
+      ✨ 生成 5 個專屬靈感
+    </button>
+    <div class="ai-output" id="ai-output"></div>
+  </div>
+</div>
+
+<button class="fab" title="新增點子" onclick="openAddModal()">＋</button>
+
+<!-- Add Modal -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h2>➕ 新增點子</h2>
+    <label>標題 *</label>
+    <input id="new-title" type="text" placeholder="例如：客戶生日提醒小工具">
+    <label>描述</label>
+    <textarea id="new-desc" rows="3" placeholder="這個工具做什麼、解決什麼問題"></textarea>
+    <label>類別</label>
+    <select id="new-tags">
+      <option value="work">💼 工作</option>
+      <option value="life">🌿 生活</option>
+      <option value="share">🤝 分享朋友</option>
+      <option value="work,share">💼 工作 ＋ 🤝 分享</option>
+      <option value="life,share">🌿 生活 ＋ 🤝 分享</option>
+    </select>
+    <label>難度</label>
+    <select id="new-diff">
+      <option value="easy">🟢 輕鬆上手</option>
+      <option value="medium">🟡 中等</option>
+      <option value="hard">🔴 有挑戰</option>
+    </select>
+    <label>Emoji（選填）</label>
+    <input id="new-emoji" type="text" placeholder="🛠️" maxlength="4">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('add-modal')">取消</button>
+      <button class="btn-save" onclick="saveIdea()">儲存點子</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="detail-emoji" id="d-emoji"></div>
+    <div class="detail-title" id="d-title"></div>
+    <div class="detail-desc" id="d-desc"></div>
+    <div class="detail-meta" id="d-meta"></div>
+    <div class="detail-actions" id="d-actions"></div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_IDEAS = [
+  { id:'d1', title:'保險話術即時教練', desc:'輸入客戶說的話，AI 立刻給出應答建議＋情境分析，幫業務員練習拒絕處理。', tags:['work','share'], diff:'easy', emoji:'🎯', done:false, custom:false },
+  { id:'d2', title:'保單條款白話翻譯機', desc:'貼入保單條款原文，AI 用一般人聽得懂的話重新解釋，幫客戶秒懂。', tags:['work','share'], diff:'easy', emoji:'📄', done:false, custom:false },
+  { id:'d3', title:'週報自動生成器', desc:'輸入本週工作重點（幾行文字），AI 整理成正式週報格式，還能調整語氣。', tags:['work'], diff:'easy', emoji:'📊', done:false, custom:false },
+  { id:'d4', title:'理賠文件小幫手', desc:'上傳理賠情境描述，AI 列出需要準備的文件清單＋注意事項，減少客戶來回詢問。', tags:['work','share'], diff:'easy', emoji:'🏥', done:false, custom:false },
+  { id:'d5', title:'LINE 貼文長度優化器', desc:'把長文章自動壓縮成 LINE 貼文最佳長度，保留重點，提升閱讀率。', tags:['work','life','share'], diff:'easy', emoji:'💬', done:false, custom:false },
+  { id:'d6', title:'客戶需求分析問卷 AI', desc:'聊天方式取代制式問卷，AI 問幾個問題後自動生成需求摘要報告。', tags:['work','share'], diff:'medium', emoji:'🤝', done:false, custom:false },
+  { id:'d7', title:'面試問題生成器', desc:'輸入應徵職位與條件，AI 自動產生結構化面試題目，並附上評分要點。', tags:['work'], diff:'medium', emoji:'👔', done:false, custom:false },
+  { id:'d8', title:'電子報主題輪動追蹤器', desc:'視覺化六個主題輪播計畫，自動提示下一篇要寫什麼、多久沒發過哪個主題。', tags:['work'], diff:'medium', emoji:'📰', done:false, custom:false },
+  { id:'d9', title:'個人財務健康檢查 AI', desc:'輸入幾個關鍵數字（收入、支出、保費），AI 給出財務結構建議＋保障缺口分析。', tags:['life','share'], diff:'medium', emoji:'💰', done:false, custom:false },
+  { id:'d10', title:'朋友圈生日祝福生成器', desc:'輸入對方名字、關係、個性，AI 生成不同風格的祝福語，不再複製貼上。', tags:['life','share'], diff:'easy', emoji:'🎂', done:false, custom:false },
+  { id:'d11', title:'候選人 AI 初篩聊天機器人', desc:'把 JD 條件轉成 AI 聊天篩選流程，自動問問題並給出初步適合度評分。', tags:['work'], diff:'medium', emoji:'🤖', done:false, custom:false },
+  { id:'d12', title:'今天要聊什麼靈感機', desc:'描述你的受眾和上週的內容，AI 給出本週三個值得發布的話題角度。', tags:['work','share'], diff:'easy', emoji:'💡', done:false, custom:false },
+  { id:'d13', title:'節日賀詞批次產生器', desc:'批次模式，一次為多位客戶生成個人化節日祝詞，省去逐一撰寫的時間。', tags:['work','share'], diff:'medium', emoji:'🎊', done:false, custom:false },
+  { id:'d14', title:'睡前感恩日記 AI', desc:'每天輸入三件事，AI 整理成溫暖的日記格式，月底回顧還能看到情緒趨勢。', tags:['life'], diff:'medium', emoji:'🌙', done:false, custom:false },
+  { id:'d15', title:'保險知識小測驗生成器', desc:'輸入一篇保險教育文章，AI 自動生成選擇題測驗，可用於客戶互動或員工培訓。', tags:['work','share'], diff:'medium', emoji:'📝', done:false, custom:false },
+  { id:'d16', title:'年度目標拆解 AI 顧問', desc:'輸入一個大目標，AI 拆解成季度、月度執行計畫，並提醒常見卡關點。', tags:['life','share'], diff:'hard', emoji:'🎯', done:false, custom:false },
+];
+
+const STORAGE_KEY = 'ai_inspiration_hub_v1';
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { ideas: JSON.parse(JSON.stringify(DEFAULT_IDEAS)) };
+}
+
+function save(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let state = load();
+let activeFilter = 'all';
+let detailId = null;
+
+const tagLabel = { work:'💼 工作', life:'🌿 生活', share:'🤝 分享朋友' };
+const diffLabel = { easy:'輕鬆', medium:'中等', hard:'挑戰' };
+const diffClass = { easy:'badge-easy', medium:'badge-med', hard:'badge-hard' };
+
+function stripeClass(tags) {
+  if (tags.includes('work') && tags.includes('share')) return 'stripe-mixed';
+  if (tags.includes('work')) return 'stripe-work';
+  if (tags.includes('share')) return 'stripe-share';
+  return 'stripe-life';
+}
+
+function renderStats() {
+  const total = state.ideas.length;
+  const done = state.ideas.filter(i => i.done).length;
+  const pending = total - done;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-pill"><strong>${total}</strong>個點子</div>
+    <div class="stat-pill"><strong>${pending}</strong>待完成</div>
+    <div class="stat-pill"><strong>${done}</strong>已完成 ✅</div>
+  `;
+}
+
+function renderGrid() {
+  const f = activeFilter;
+  let list = state.ideas.filter(idea => {
+    if (f === 'all') return true;
+    if (f === 'done') return idea.done;
+    if (f === 'work') return idea.tags.includes('work');
+    if (f === 'life') return idea.tags.includes('life');
+    if (f === 'share') return idea.tags.includes('share');
+    if (f === 'easy') return idea.diff === 'easy';
+    if (f === 'medium') return idea.diff === 'medium';
+    if (f === 'hard') return idea.diff === 'hard';
+    return true;
+  });
+
+  // 未完成排前，已完成排後
+  list.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+
+  const grid = document.getElementById('grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty">🔍 沒有符合的點子，換個篩選試試？</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(idea => `
+    <div class="card${idea.done ? ' done' : ''}" onclick="openDetail('${idea.id}')">
+      <div class="card-stripe ${stripeClass(idea.tags)}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-title">${idea.emoji || '💡'} ${idea.title}</div>
+          <span class="badge ${diffClass[idea.diff]}">${diffLabel[idea.diff]}</span>
+        </div>
+        <div class="card-desc">${idea.desc}</div>
+        <div class="card-footer">
+          <div class="tag-row">
+            ${idea.tags.map(t => `<span class="tag">${tagLabel[t]||t}</span>`).join('')}
+          </div>
+          <button class="done-btn" title="${idea.done ? '取消完成':'標記完成'}" onclick="toggleDone(event,'${idea.id}')">
+            ${idea.done ? '✅' : '○'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function render() { renderStats(); renderGrid(); }
+
+// Filters
+document.getElementById('filters').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.f;
+  renderGrid();
+});
+
+function toggleDone(e, id) {
+  e.stopPropagation();
+  const idea = state.ideas.find(i => i.id === id);
+  if (idea) { idea.done = !idea.done; save(state); render(); }
+}
+
+// Add Modal
+function openAddModal() {
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-desc').value = '';
+  document.getElementById('new-emoji').value = '';
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function saveIdea() {
+  const title = document.getElementById('new-title').value.trim();
+  if (!title) { alert('請填入標題'); return; }
+  const tags = document.getElementById('new-tags').value.split(',');
+  const diff = document.getElementById('new-diff').value;
+  const desc = document.getElementById('new-desc').value.trim();
+  const emoji = document.getElementById('new-emoji').value.trim() || '💡';
+  const idea = {
+    id: 'c' + Date.now(),
+    title, desc, tags, diff, emoji,
+    done: false, custom: true
+  };
+  state.ideas.unshift(idea);
+  save(state);
+  render();
+  closeModal('add-modal');
+}
+
+// Detail Modal
+function openDetail(id) {
+  detailId = id;
+  const idea = state.ideas.find(i => i.id === id);
+  if (!idea) return;
+  document.getElementById('d-emoji').textContent = idea.emoji || '💡';
+  document.getElementById('d-title').textContent = idea.title;
+  document.getElementById('d-desc').textContent = idea.desc || '（沒有描述）';
+  document.getElementById('d-meta').innerHTML =
+    `<span class="badge ${diffClass[idea.diff]}">${diffLabel[idea.diff]}</span>` +
+    idea.tags.map(t => `<span class="tag">${tagLabel[t]||t}</span>`).join('');
+
+  const actions = document.getElementById('d-actions');
+  actions.innerHTML = `
+    <button class="btn-done-detail" onclick="toggleDoneFromDetail()">
+      ${idea.done ? '↩ 取消完成' : '✅ 標記完成'}
+    </button>
+    ${idea.custom ? `<button class="btn-delete" onclick="deleteIdea()">🗑 刪除</button>` : ''}
+    <button class="btn-close-detail" onclick="closeModal('detail-modal')">關閉</button>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function toggleDoneFromDetail() {
+  const idea = state.ideas.find(i => i.id === detailId);
+  if (idea) { idea.done = !idea.done; save(state); render(); }
+  closeModal('detail-modal');
+}
+
+function deleteIdea() {
+  if (!confirm('確定刪除這個點子嗎？')) return;
+  state.ideas = state.ideas.filter(i => i.id !== detailId);
+  save(state);
+  render();
+  closeModal('detail-modal');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// AI Generate
+async function generateIdeas() {
+  const bg = document.getElementById('ai-bg').value.trim() || '保險業、台灣';
+  const type = document.getElementById('ai-type').value;
+  const btn = document.getElementById('ai-btn');
+  const output = document.getElementById('ai-output');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner">⏳</span> AI 思考中…';
+  output.classList.add('visible');
+  output.textContent = '';
+
+  const prompt = `你是一個 AI 週計畫靈感顧問。
+用戶背景：${bg}
+需要的點子類型：${type}
+
+請生成 5 個「一週可完成的 AI 小工具」點子，格式如下（每個點子用 --- 分隔）：
+
+🔧 工具名稱
+📝 一句話描述（20字以內）
+💡 使用場景：具體說明什麼時候用、解決什麼問題
+⏱ 預估難度：輕鬆 / 中等 / 有挑戰
+
+請用繁體中文，語氣親切，點子要具體實用，不要太抽象。`;
+
+  try {
+    const res = await puter.ai.chat(prompt, { model: 'gpt-4o-mini' });
+    const text = res?.message?.content?.[0]?.text || res?.toString() || '生成失敗，請再試一次';
+    output.textContent = text;
+  } catch(e) {
+    output.textContent = '⚠️ 生成失敗：' + (e.message || '請稍後再試');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ 再生成 5 個靈感';
+  }
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
